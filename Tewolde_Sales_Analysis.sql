@@ -1,45 +1,61 @@
+/* ==========================================================================
+Naomi Tewolde 
+
+Capstone_1
+
+Data Aanlytics
+
+Week 4 
+/* ===========================================================================*/
+
 USE sample_sales;
 
--- 1) What is total revenue overall for sales in the assigned territory, 
--- plus the start date and end date
--- that tell you what period the data covers?
 
--- CONTEXT: Since I'm looking for the toatal revenue soley for 'Maryland' 
--- I have to pull from the management table, which includes my store ID and store sales for the total
--- by including the MIN Transaction date from store sales and the MAX transaction 
--- date. I also made sure to use the WHERE statments to filter out the Store_ID and management
--- so I could include all the information only from my assigned territory. 
+/*1) What is total revenue overall for sales in the assigned territory, 
+plus the start date and end date that tell you what period the data covers?*/
+/*===========================================================================*/ 
 
+/*CONTEXT: Since I'm looking for the toatal revenue soley for 'Maryland' 
+I have to pull from the management table, which includes my store ID and store sales for the total
+by including the MIN Transaction date from store sales and the MAX transaction 
+date. I also made sure to use the WHERE statments to filter out the Store_ID and management
+so I could include all the information only from my assigned territory.*/
+
+/*==============================================================================*/
 -- ANSWER: SALES TERRITORY: Maryland, TOTAL REVENUE: 45370048.85, START DATE: 2022-01-01 END DATE: 2025-12-31
 
 
-SELECT 'Maryland' AS Sales_Territory,
-SUM(Sale_Amount) AS Total_Revenue, 
-MIN(Transaction_Date) AS Start_Date,
-Max(Transaction_Date) AS End_Date
-FROM Store_Sales
-WHERE Store_ID = 
-(SELECT Store_ID FROM Management WHERE State = 'Maryland');
+SELECT 'Maryland' AS Sales_Territory, -- Creating column for sales territory as Maryland for output
+SUM(Sale_Amount) AS Total_Revenue, -- Adding Sales_Amount as Total Revenue column name 
+MIN(Transaction_Date) AS Start_Date, -- MIN trans_date from ss, date time as start date column name
+Max(Transaction_Date) AS End_Date -- MAX trans_date as end date in column name 
+FROM Store_Sales -- pulling from this table
+WHERE Store_ID = -- filtering storeID to look for all information matched with Maryland
+(SELECT Store_ID FROM Management WHERE State = 'Maryland'); -- pulling from management table
 
 -- 2) What is the month by month revenue breakdown for the sales territory?
+/*==========================================================================*/
 
--- CONTEXT: This query seperates all non-Maryland state store transactions
--- It groups them by year and month with total revenue in that column order.
--- This gives a clear view of all the calculated monthly revenue.
+/*CONTEXT: This query seperates all non-Maryland state store transactions
+It groups them by year and month with total revenue in that column order.
+This gives a clear view of all the calculated monthly revenue.*/
 
+/*=====================================================================*/ 
 
--- This select statement helps combine the sum of the revenue for each month and I created alias's to the Sales_Date from
--- the store_sales(ss) table and transaction_date columns. 
+/*This select statement helps combine the sum of the revenue for 
+each month and I created alias's to the Sales_Date from the 
+store_sales(ss) table and transaction_date columns.*/ 
+
+/*=======================================================================*/ 
 SELECT 
-	YEAR(Sale_Date) AS year, 
-	MONTH(Sale_Date) AS month,
-	SUM(revenue) AS total_revenue 
+	YEAR(Sale_Date) AS year, -- creates year column from the sale_date 
+	MONTH(Sale_Date) AS month, -- creates month column from the sale_date
+	SUM(revenue) AS total_revenue -- combining the sum of revenue as total_revnue column name
     
 -- We have to pull the Store_Sales (alias being ss) table, which contains all the information about individual 
 -- sales transactions, and use JOIN, which connects each sale to location(state), to add Store_Locations(alias sl), which
 -- contains information about state, to combined the matching column "StoreID". The WHERE filters (sl.state) 'Maryland'
 -- to exclude all non-Maryland sales. 
-
 -- I have to use the subquery alias (all_sales). This helps make sure filtering happens before aggregation
 -- Then using the GROUP BY function so that I can set the columns names as one row being Year and one Row being month 
 -- and ORDER BY function to make the chart aligned and clear with support from the GROUP BY function. 
@@ -50,10 +66,10 @@ ss.Transaction_Date
 	AS Sale_Date,
 ss.Sale_Amount 
 	AS revenue
-FROM store_sales ss
-JOIN store_locations sl
+FROM store_sales ss -- pulling trans_date and sale_amount from ss table
+JOIN store_locations sl -- joining with store_loc with the storeID column
 	ON ss.Store_ID = sl.StoreId
-WHERE sl.State = 'Maryland') 
+WHERE sl.State = 'Maryland') -- filtering to find 
 
 all_sales
 GROUP BY Year, Month
